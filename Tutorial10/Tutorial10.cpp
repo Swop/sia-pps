@@ -110,7 +110,7 @@ INT WINAPI wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int )
 
     InitApp();
 
-    DXUTCreateWindow( L"Tutorial10" );
+    DXUTCreateWindow( L"SIA Delamarche - Le Ster - Mauduit - based on Tutorial 10 from DirectX Sample Library" );
     DXUTCreateDevice( true, 640, 480 );
     DXUTMainLoop(); // Enter into the DXUT render loop
 
@@ -130,23 +130,12 @@ void InitApp()
     g_HUD.Init( &g_DialogResourceManager );
     g_SampleUI.Init( &g_DialogResourceManager );
 
-    g_HUD.SetCallback( OnGUIEvent ); int iY = 10;
-    g_HUD.AddButton( IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, iY, 125, 22 );
-    //g_HUD.AddButton( IDC_SHOW_HELP, L"Show help (F1)", 35, iY += 24, 125, 22, VK_F1 );
-	//g_HUD.AddButton( IDC_CHANGEDEVICE, L"Change device (F2)", 35, iY += 24, 125, 22, VK_F2 );
-    //g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 35, iY += 24, 125, 22, VK_F3 );
-    //g_HUD.AddButton( IDC_TOGGLEWARP, L"Toggle WARP (F4)", 35, iY += 24, 125, 22, VK_F4 );
+    //g_HUD.SetCallback( OnGUIEvent ); int iY = 10;
+    //g_HUD.AddButton( IDC_TOGGLEFULLSCREEN, L"Full screen", 35, iY, 125, 22 );
 
-    g_SampleUI.SetCallback( OnGUIEvent ); iY = 10;
+    g_SampleUI.SetCallback( OnGUIEvent ); int iY = 10;
 
-    WCHAR sz[100];
-    iY += 24;
-    swprintf_s( sz, 100, L"Puffiness: %0.2f", g_fModelPuffiness );
-    g_SampleUI.AddStatic( IDC_PUFF_STATIC, sz, 35, iY += 24, 125, 22 );
-    g_SampleUI.AddSlider( IDC_PUFF_SCALE, 50, iY += 24, 100, 22, 0, 2000, ( int )( g_fModelPuffiness * 100.0f ) );
-
-    iY += 24;
-    g_SampleUI.AddCheckBox( IDC_TOGGLESPIN, L"Toggle Spinning", 35, iY += 24, 125, 22, g_bSpinning );
+    g_SampleUI.AddCheckBox( IDC_TOGGLESPIN, L"Rotation", 35, iY, 125, 22, g_bSpinning );
 }
 
 
@@ -199,10 +188,6 @@ HRESULT CALLBACK OnD3D10CreateDevice( ID3D10Device* pd3dDevice, const DXGI_SURFA
     g_pWorldVariable = g_pEffect->GetVariableByName( "World" )->AsMatrix();
     g_pViewVariable = g_pEffect->GetVariableByName( "View" )->AsMatrix();
     g_pProjectionVariable = g_pEffect->GetVariableByName( "Projection" )->AsMatrix();
-    g_pPuffiness = g_pEffect->GetVariableByName( "Puffiness" )->AsScalar();
-
-    // Set Puffiness
-    g_pPuffiness->SetFloat( g_fModelPuffiness );
 
     // Define the input layout
     const D3D10_INPUT_ELEMENT_DESC layout[] =
@@ -360,9 +345,7 @@ void RenderText()
 	
 	g_pTxtHelper->Begin();
     g_pTxtHelper->SetInsertionPos( 2, 0 );
-    g_pTxtHelper->SetForegroundColor( D3DXCOLOR( 1.0f, 1.0f, 0.0f, 1.0f ) );
     g_pTxtHelper->DrawTextLine( DXUTGetFrameStats( DXUTIsVsyncEnabled() ) );
-    //g_pTxtHelper->DrawTextLine( DXUTGetDeviceStats() );
 
 
 
@@ -370,22 +353,20 @@ void RenderText()
     if( g_bShowHelp )
     {
         g_pTxtHelper->SetInsertionPos( 2, nBackBufferHeight - 20 * 6 );
-        g_pTxtHelper->SetForegroundColor( D3DXCOLOR( 1.0f, 0.75f, 0.0f, 1.0f ) );
         g_pTxtHelper->DrawTextLine( L"Controls:" );
 
         g_pTxtHelper->SetInsertionPos( 20, nBackBufferHeight - 20 * 5 );
-        g_pTxtHelper->DrawTextLine( L"Move forward and backward with 'E' and 'D'\n"
-                                    L"Move left and right with 'S' and 'D' \n"
-                                    L"Click the mouse button to roate the camera\n");
-
-        g_pTxtHelper->SetInsertionPos( 350, nBackBufferHeight - 20 * 5 );
-        g_pTxtHelper->DrawTextLine( L"Hide help: F1\n"
+        g_pTxtHelper->DrawTextLine( L"Click the mouse button to roate the camera\n"
+									L"Hide help: F1\n"
+									L"Full screen F11\n"
                                     L"Quit: ESC\n" );
     }
     else
     {
         g_pTxtHelper->SetForegroundColor( D3DXCOLOR( 1.0f, 1.0f, 1.0f, 1.0f ) );
-        g_pTxtHelper->DrawTextLine( L"Press F1 for help" );
+        g_pTxtHelper->DrawTextLine( L"Press F1 for help\n" );
+		if(DXUTIsWindowed())  g_pTxtHelper->DrawTextLine( L"Press F11 for full screen mode" );
+		else g_pTxtHelper->DrawTextLine( L"Press F11 for full screen mode" );
     }
 
 	g_pTxtHelper->End();
@@ -495,6 +476,8 @@ void CALLBACK KeyboardProc( UINT nChar, bool bKeyDown, bool bAltDown, void* pUse
         {
             case VK_F1:
                 g_bShowHelp = !g_bShowHelp; break;
+			case VK_F11:
+                DXUTToggleFullScreen(); break;
         }
     }
 }
@@ -518,16 +501,6 @@ void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, v
         case IDC_TOGGLESPIN:
         {
             g_bSpinning = g_SampleUI.GetCheckBox( IDC_TOGGLESPIN )->GetChecked();
-            break;
-        }
-
-        case IDC_PUFF_SCALE:
-        {
-            WCHAR sz[100];
-            g_fModelPuffiness = ( float )( g_SampleUI.GetSlider( IDC_PUFF_SCALE )->GetValue() * 0.01f );
-            swprintf_s( sz, 100, L"Puffiness: %0.2f", g_fModelPuffiness );
-            g_SampleUI.GetStatic( IDC_PUFF_STATIC )->SetText( sz );
-            g_pPuffiness->SetFloat( g_fModelPuffiness );
             break;
         }
     }
