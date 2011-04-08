@@ -217,6 +217,8 @@ CBaseCamera::CBaseCamera()
     // Setup the view matrix
     SetViewParams( &vEyePt, &vLookatPt );
 
+	SetEnablePositionMovement(true);
+
     // Setup the projection matrix
     SetProjParams( D3DX_PI / 4, 1.0f, 1.0f, 1000.0f );
 
@@ -239,7 +241,7 @@ CBaseCamera::CBaseCamera()
     m_vRotVelocity = D3DXVECTOR2( 0, 0 );
 
     m_fRotationScaler = 0.01f;
-    m_fMoveScaler = 5.0f;
+    m_fMoveScaler = 100.0f;
 
     m_bInvertPitch = false;
     m_bEnableYAxisMovement = true;
