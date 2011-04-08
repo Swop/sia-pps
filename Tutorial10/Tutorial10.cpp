@@ -204,7 +204,7 @@ HRESULT CALLBACK OnD3D10CreateDevice( ID3D10Device* pd3dDevice, const DXGI_SURFA
     pd3dDevice->IASetInputLayout( g_pVertexLayout );
 
     // Load the mesh
-    V_RETURN( g_Mesh.Create( pd3dDevice, L"Tiny\\tiny.sdkmesh", true ) );
+    V_RETURN( g_Mesh.Create( pd3dDevice, L"Tiny\\pouet.sdkmesh", true ) );
 
     // Initialize the world matrices
     D3DXMatrixIdentity( &g_World );
