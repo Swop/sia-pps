@@ -101,7 +101,7 @@ INT WINAPI wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int )
     DXUTSetCallbackD3D10FrameRender( OnD3D10FrameRender );
 
     DXUTSetCallbackMsgProc( MsgProc );
-    DXUTSetCallbackKeyboard( KeyboardProc );
+    DXUTSetCallbackKeyboard( KeyboardProc ); // Action to perform when a keyboard event occur
     DXUTSetCallbackFrameMove( OnFrameMove );
     DXUTSetCallbackDeviceChanging( ModifyDeviceSettings );
 
@@ -123,19 +123,15 @@ INT WINAPI wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int )
 //--------------------------------------------------------------------------------------
 void InitApp()
 {
-    g_fModelPuffiness = 0.0f;
-    g_bSpinning = true;
+    g_bSpinning = false; // The object doesn't move by default
 
     g_D3DSettingsDlg.Init( &g_DialogResourceManager );
     g_HUD.Init( &g_DialogResourceManager );
     g_SampleUI.Init( &g_DialogResourceManager );
 
-    //g_HUD.SetCallback( OnGUIEvent ); int iY = 10;
-    //g_HUD.AddButton( IDC_TOGGLEFULLSCREEN, L"Full screen", 35, iY, 125, 22 );
-
     g_SampleUI.SetCallback( OnGUIEvent ); int iY = 10;
 
-    g_SampleUI.AddCheckBox( IDC_TOGGLESPIN, L"Rotation", 35, iY, 125, 22, g_bSpinning );
+    g_SampleUI.AddCheckBox( IDC_TOGGLESPIN, L"Rotation", 35, iY, 125, 22, g_bSpinning ); // We offer the possibility to rotate the object
 }
 
 
@@ -217,6 +213,7 @@ HRESULT CALLBACK OnD3D10CreateDevice( ID3D10Device* pd3dDevice, const DXGI_SURFA
     D3DXVECTOR3 Eye( 0.0f, 0.0f, -800.0f );
     D3DXVECTOR3 At( 0.0f, 0.0f, 0.0f );
     g_Camera.SetViewParams( &Eye, &At );
+	g_Camera.SetEnablePositionMovement(true);
 
     return S_OK;
 }
@@ -331,7 +328,7 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
     g_HUD.OnRender( fElapsedTime );
     g_SampleUI.OnRender( fElapsedTime );
 
-    RenderText();
+    RenderText(); // Display info on screen
 }
 
 
@@ -359,6 +356,7 @@ void RenderText()
         g_pTxtHelper->DrawTextLine( L"Click the mouse button to roate the camera\n"
 									L"Hide help: F1\n"
 									L"Full screen F11\n"
+									L"Move the camera with Up - Down - Left - Right - Pge Up - Pge Down - Home\n"
                                     L"Quit: ESC\n" );
     }
     else
@@ -475,9 +473,9 @@ void CALLBACK KeyboardProc( UINT nChar, bool bKeyDown, bool bAltDown, void* pUse
         switch( nChar )
         {
             case VK_F1:
-                g_bShowHelp = !g_bShowHelp; break;
+                g_bShowHelp = !g_bShowHelp; break; // Show help
 			case VK_F11:
-                DXUTToggleFullScreen(); break;
+                DXUTToggleFullScreen(); break; // Display in full screen mode
         }
     }
 }
