@@ -40,6 +40,7 @@ ID3D10EffectScalarVariable*         g_pPuffiness = NULL;
 D3DXMATRIX                          g_World;
 float                               g_fModelPuffiness = 0.0f;
 bool                                g_bSpinning = true;
+BOOL								g_bShowHelp = FALSE;    // If true, it renders the UI control text
 
 
 //--------------------------------------------------------------------------------------
@@ -131,9 +132,10 @@ void InitApp()
 
     g_HUD.SetCallback( OnGUIEvent ); int iY = 10;
     g_HUD.AddButton( IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, iY, 125, 22 );
-    g_HUD.AddButton( IDC_CHANGEDEVICE, L"Change device (F2)", 35, iY += 24, 125, 22, VK_F2 );
-    g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 35, iY += 24, 125, 22, VK_F3 );
-    g_HUD.AddButton( IDC_TOGGLEWARP, L"Toggle WARP (F4)", 35, iY += 24, 125, 22, VK_F4 );
+    //g_HUD.AddButton( IDC_SHOW_HELP, L"Show help (F1)", 35, iY += 24, 125, 22, VK_F1 );
+	//g_HUD.AddButton( IDC_CHANGEDEVICE, L"Change device (F2)", 35, iY += 24, 125, 22, VK_F2 );
+    //g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 35, iY += 24, 125, 22, VK_F3 );
+    //g_HUD.AddButton( IDC_TOGGLEWARP, L"Toggle WARP (F4)", 35, iY += 24, 125, 22, VK_F4 );
 
     g_SampleUI.SetCallback( OnGUIEvent ); iY = 10;
 
@@ -353,12 +355,40 @@ void CALLBACK OnD3D10FrameRender( ID3D10Device* pd3dDevice, double fTime, float 
 //--------------------------------------------------------------------------------------
 void RenderText()
 {
-    g_pTxtHelper->Begin();
+    UINT nBackBufferHeight = ( DXUTIsAppRenderingWithD3D9() ) ? DXUTGetD3D9BackBufferSurfaceDesc()->Height :
+		DXUTGetDXGIBackBufferSurfaceDesc()->Height;
+	
+	g_pTxtHelper->Begin();
     g_pTxtHelper->SetInsertionPos( 2, 0 );
     g_pTxtHelper->SetForegroundColor( D3DXCOLOR( 1.0f, 1.0f, 0.0f, 1.0f ) );
     g_pTxtHelper->DrawTextLine( DXUTGetFrameStats( DXUTIsVsyncEnabled() ) );
-    g_pTxtHelper->DrawTextLine( DXUTGetDeviceStats() );
-    g_pTxtHelper->End();
+    //g_pTxtHelper->DrawTextLine( DXUTGetDeviceStats() );
+
+
+
+	// Draw help
+    if( g_bShowHelp )
+    {
+        g_pTxtHelper->SetInsertionPos( 2, nBackBufferHeight - 20 * 6 );
+        g_pTxtHelper->SetForegroundColor( D3DXCOLOR( 1.0f, 0.75f, 0.0f, 1.0f ) );
+        g_pTxtHelper->DrawTextLine( L"Controls:" );
+
+        g_pTxtHelper->SetInsertionPos( 20, nBackBufferHeight - 20 * 5 );
+        g_pTxtHelper->DrawTextLine( L"Move forward and backward with 'E' and 'D'\n"
+                                    L"Move left and right with 'S' and 'D' \n"
+                                    L"Click the mouse button to roate the camera\n");
+
+        g_pTxtHelper->SetInsertionPos( 350, nBackBufferHeight - 20 * 5 );
+        g_pTxtHelper->DrawTextLine( L"Hide help: F1\n"
+                                    L"Quit: ESC\n" );
+    }
+    else
+    {
+        g_pTxtHelper->SetForegroundColor( D3DXCOLOR( 1.0f, 1.0f, 1.0f, 1.0f ) );
+        g_pTxtHelper->DrawTextLine( L"Press F1 for help" );
+    }
+
+	g_pTxtHelper->End();
 }
 
 
@@ -464,7 +494,7 @@ void CALLBACK KeyboardProc( UINT nChar, bool bKeyDown, bool bAltDown, void* pUse
         switch( nChar )
         {
             case VK_F1:
-                break;
+                g_bShowHelp = !g_bShowHelp; break;
         }
     }
 }

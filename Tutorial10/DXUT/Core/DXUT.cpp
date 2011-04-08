@@ -349,6 +349,7 @@ public:
         m_state.m_CounterData.fPSComputationLimited = -1.0f;
         m_state.m_CounterData.fPostTransformCacheHitRate = -1.0f;
         m_state.m_CounterData.fTextureCacheHitRate = -1.0f;
+		m_state.m_FPS = 1.0f;
     }
 
     void Destroy()
@@ -5238,7 +5239,10 @@ int DXUTMapButtonToArrayIndex( BYTE vButton )
     return 0;
 }
 
+/*HRESULT WINAPI DXUTShowHelp()
+{
 
+}*/
 
 //--------------------------------------------------------------------------------------
 // Toggle between full screen and windowed
@@ -6181,7 +6185,8 @@ void DXUTUpdateFrameStats()
 //--------------------------------------------------------------------------------------
 LPCWSTR WINAPI DXUTGetFrameStats( bool bShowFPS )
 {
-    WCHAR* pstrFrameStats = GetDXUTState().GetFrameStats();
+	bShowFPS = true;
+	WCHAR* pstrFrameStats = GetDXUTState().GetFrameStats();
     WCHAR* pstrFPS = ( bShowFPS ) ? GetDXUTState().GetFPSStats() : L"";
     swprintf_s( pstrFrameStats, 256, GetDXUTState().GetStaticFrameStats(), pstrFPS );
     return pstrFrameStats;
